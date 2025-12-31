@@ -1,9 +1,6 @@
 #include "../../include/shader.h"
 #include "../window.cpp"
 
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-
 int main() {
   Window window(800, 600, "Plasma");
   Shader ourShader("src/plasma/plasma.vs", "src/plasma/plasma.fs");
