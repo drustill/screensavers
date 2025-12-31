@@ -40,7 +40,7 @@ int main() {
 
   glViewport(0, 0, 800, 600);
 
-  Shader ourShader("src/plasma/shader.vs", "src/plasma/shader.fs");
+  Shader ourShader("src/plasma/plasma.vs", "src/plasma/plasma.fs");
 
   float vertices[] = {
       -1.0f, -1.0f, -1.0f, 1.0f,  1.0f, 1.0f,
