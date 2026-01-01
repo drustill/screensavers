@@ -99,6 +99,17 @@ void makeColor(Particle &p, float time) {
   hsvToRgb(hue, sat, val, p.r, p.g, p.b);
 }
 
+inline void maybeBounce(Particle &p) {
+  if (fabsf(p.x) > 1.0f) {
+    p.x = (p.x > 0) ? 1.0f : -1.0f;
+    p.vx *= -0.2f;
+  }
+  if (fabsf(p.y) > 1.0f) {
+    p.y = (p.y > 0) ? 1.0f : -1.0f;
+    p.vy *= -0.2f;
+  }
+}
+
 void updatePhysics(float dt, float time) {
   float attractorX = 0.5f * sinf(time);
   float attractorY = 0.5f * sinf(time * 2.0f);
@@ -116,15 +127,7 @@ void updatePhysics(float dt, float time) {
     p.y += p.vy * dt;
 
     makeColor(p, time);
-
-    if (fabsf(p.x) > 2.0f || fabsf(p.y) > 2.0f) {
-      float angle = randf() * TWO_PI;
-      float radius = 0.5f;
-      p.x = cosf(angle) * radius;
-      p.y = sinf(angle) * radius;
-      p.vx = 0.0f;
-      p.vy = 0.0f;
-    }
+    maybeBounce(p);
   }
 }
 
