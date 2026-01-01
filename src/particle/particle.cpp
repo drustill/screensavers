@@ -12,6 +12,11 @@ struct Particle {
 const int NUM_PARTICLES = 5;
 std::vector<Particle> particles(NUM_PARTICLES);
 
+const float DIMINISHER = 0.3f;
+
+enum ColorMode { RAINBOW };
+ColorMode colorMode = RAINBOW;
+
 void initParticles() {
   for (int i = 0; i < NUM_PARTICLES; i++) {
     float angle = ((float)rand() / RAND_MAX) * 2.0f * M_PI;
@@ -20,14 +25,34 @@ void initParticles() {
     particles[i].y = sinf(angle) * radius;
     particles[i].vx = 0.0f;
     particles[i].vy = 0.0f;
-    particles[i].r = 1.0f;
-    particles[i].g = 1.0f;
-    particles[i].b = 1.0f;
-    particles[i].a = 0.5f;
+    particles[i].a = 1.0f;
   }
 }
 
-void updatePhysics(float dt) {
+/**
+ * cos(x) between -1 and 1
+ * => cos(x) + 1 between 0 and 2
+ * => 0.5 * (cos(x) + 1) 0 and 1
+ *
+ * On color wheel, R, G, B are 120 deg apart
+ */
+
+const float ONE_THIRD = 1.0f / 3.0f;
+const float TWO_THIRDS = 2.0f / 3.0f;
+
+inline float wave(float x) { return 0.5f * (cosf(x) + 1.0f); }
+
+void makeColor(Particle &p, float time) {
+  float colorRotation = 2.0f * M_PI;
+  float beginR = wave(time * colorRotation);
+  float beginG = wave((time + ONE_THIRD) * colorRotation);
+  float beginB = wave((time + TWO_THIRDS) * colorRotation);
+  p.r = beginR;
+  p.g = beginG;
+  p.b = beginB;
+}
+
+void updatePhysics(float dt, float time) {
   float attractorX = 0.0f;
   float attractorY = 0.0f;
 
@@ -36,12 +61,14 @@ void updatePhysics(float dt) {
     float dy = attractorY - p.y;
     float dist = sqrtf(dx * dx + dy * dy + 0.1f);
 
-    float force = (1.0f / (dist * dist)) * 0.3f;
+    float force = (1.0f / (dist * dist)) * DIMINISHER;
     p.vx += (dx / dist) * force * dt;
     p.vy += (dy / dist) * force * dt;
 
     p.x += p.vx * dt;
     p.y += p.vy * dt;
+
+    makeColor(p, time);
 
     if (fabsf(p.x) > 2.0f || fabsf(p.y) > 2.0f) {
       float angle = ((float)rand() / RAND_MAX) * 2.0f * M_PI;
@@ -86,7 +113,7 @@ int main() {
     float deltaTime = currentTime - lastTime;
     lastTime = currentTime;
 
-    updatePhysics(deltaTime);
+    updatePhysics(deltaTime, currentTime);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, NUM_PARTICLES * sizeof(Particle),
