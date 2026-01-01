@@ -1,7 +1,7 @@
 #include "../../include/shader.h"
 #include "../window.cpp"
-#include "GLFW/glfw3.h"
-#include <cstddef>
+#include <cstdlib>
+#include <vector>
 
 struct Particle {
   float x, y;
@@ -9,94 +9,48 @@ struct Particle {
   float r, g, b, a;
 };
 
-struct Attractor {
-  float x, y;
-  float r, g, b;
-};
-
-const int NUM_PARTICLES = 15000;
-const int NUM_ATTRACTORS = 3;
-const float GRAVITY = 50.0f;
-const float DRAG = 0.98f;
-
+const int NUM_PARTICLES = 5;
 std::vector<Particle> particles(NUM_PARTICLES);
-std::vector<Attractor> attractors(NUM_ATTRACTORS);
-
-// Hashtag Claude generated
-void updatePhysics(float deltaTime) {
-  float time = glfwGetTime();
-
-  // Update attractor positions (like Flurry's UpdateSpark)
-  // They orbit in Lissajous patterns, just like Flurry!
-  for (int i = 0; i < NUM_ATTRACTORS; i++) {
-    float phase = (float)i * 2.0f * M_PI / NUM_ATTRACTORS;
-    attractors[i].x = 0.5f * cosf(time * 1.3f + phase) * cosf(time * 0.7f);
-    attractors[i].y = 0.5f * sinf(time * 1.1f + phase) * sinf(time * 0.9f);
-
-    // Color cycling like Flurry
-    attractors[i].r = 0.5f + 0.5f * sinf(time + phase);
-    attractors[i].g = 0.5f + 0.5f * sinf(time * 1.3f + phase);
-    attractors[i].b = 0.5f + 0.5f * sinf(time * 0.7f + phase);
-  }
-
-  // Update each particle (like Flurry's smoke particle loop)
-  for (int i = 0; i < NUM_PARTICLES; i++) {
-    Particle &p = particles[i];
-
-    // Attract to each attractor (this is Flurry's core physics!)
-    for (int j = 0; j < NUM_ATTRACTORS; j++) {
-      float dx = attractors[j].x - p.x;
-      float dy = attractors[j].y - p.y;
-      float distSq = dx * dx + dy * dy + 0.001f; // avoid division by zero
-
-      // F = G / r² (inverse square law, like Flurry)
-      float force = GRAVITY / distSq * deltaTime;
-      float dist = sqrtf(distSq);
-
-      // Apply force in direction of attractor
-      p.vx += (dx / dist) * force;
-      p.vy += (dy / dist) * force;
-
-      // Color particle based on nearest attractor
-      if (j == i % NUM_ATTRACTORS) {
-        p.r = attractors[j].r;
-        p.g = attractors[j].g;
-        p.b = attractors[j].b;
-      }
-    }
-
-    // Apply drag (like Flurry's info->drag)
-    p.vx *= DRAG;
-    p.vy *= DRAG;
-
-    // Integrate position
-    p.x += p.vx * deltaTime;
-    p.y += p.vy * deltaTime;
-
-    // Fade based on velocity (faster = brighter)
-    float speed = sqrtf(p.vx * p.vx + p.vy * p.vy);
-    p.a = fminf(1.0f, speed * 2.0f);
-
-    // Reset if too far (particle
-    // %.%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.
-    if (fabsf(p.x) > 2.0f || fabsf(p.y) > 2.0f) {
-      p.x = ((float)rand() / RAND_MAX - 0.5f) * 0.1f;
-      p.y = ((float)rand() / RAND_MAX - 0.5f) * 0.1f;
-      p.vx = p.vy = 0.0f;
-    }
-  }
-}
 
 void initParticles() {
   for (int i = 0; i < NUM_PARTICLES; i++) {
-    particles[i].x = ((float)rand() / RAND_MAX - 0.5f) * 2.0f;
-    particles[i].y = ((float)rand() / RAND_MAX - 0.5f) * 2.0f;
+    float angle = ((float)rand() / RAND_MAX) * 2.0f * M_PI;
+    float radius = 0.3f + ((float)rand() / RAND_MAX) * 0.5f;
+    particles[i].x = cosf(angle) * radius;
+    particles[i].y = sinf(angle) * radius;
     particles[i].vx = 0.0f;
     particles[i].vy = 0.0f;
     particles[i].r = 1.0f;
-    particles[i].g = 0.5f;
-    particles[i].b = 0.2f;
-    particles[i].a = 1.0f;
+    particles[i].g = 1.0f;
+    particles[i].b = 1.0f;
+    particles[i].a = 0.5f;
+  }
+}
+
+void updatePhysics(float dt) {
+  float attractorX = 0.0f;
+  float attractorY = 0.0f;
+
+  for (auto &p : particles) {
+    float dx = attractorX - p.x;
+    float dy = attractorY - p.y;
+    float dist = sqrtf(dx * dx + dy * dy + 0.1f);
+
+    float force = (1.0f / (dist * dist)) * 0.3f;
+    p.vx += (dx / dist) * force * dt;
+    p.vy += (dy / dist) * force * dt;
+
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+
+    if (fabsf(p.x) > 2.0f || fabsf(p.y) > 2.0f) {
+      float angle = ((float)rand() / RAND_MAX) * 2.0f * M_PI;
+      float radius = 0.5f;
+      p.x = cosf(angle) * radius;
+      p.y = sinf(angle) * radius;
+      p.vx = 0.0f;
+      p.vy = 0.0f;
+    }
   }
 }
 
@@ -123,7 +77,6 @@ int main() {
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
   glEnable(GL_PROGRAM_POINT_SIZE);
 
   float lastTime = glfwGetTime();
