@@ -100,8 +100,8 @@ void makeColor(Particle &p, float time) {
 }
 
 void updatePhysics(float dt, float time) {
-  float attractorX = 0.0f;
-  float attractorY = 0.0f;
+  float attractorX = 0.5f * sinf(time);
+  float attractorY = 0.5f * sinf(time * 2.0f);
 
   for (auto &p : particles) {
     float dx = attractorX - p.x;
