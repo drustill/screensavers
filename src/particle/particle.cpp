@@ -43,10 +43,11 @@ const float TWO_THIRDS = 2.0f / 3.0f;
 inline float wave(float x) { return 0.5f * (cosf(x) + 1.0f); }
 
 void makeColor(Particle &p, float time) {
-  float colorRotation = 2.0f * M_PI;
+  float cycleTime = 5.0f;
+  float colorRotation = 2.0f * M_PI / cycleTime;
   float beginR = wave(time * colorRotation);
-  float beginG = wave((time + ONE_THIRD) * colorRotation);
-  float beginB = wave((time + TWO_THIRDS) * colorRotation);
+  float beginG = wave((time + cycleTime * ONE_THIRD) * colorRotation);
+  float beginB = wave((time + cycleTime * TWO_THIRDS) * colorRotation);
   p.r = beginR;
   p.g = beginG;
   p.b = beginB;
