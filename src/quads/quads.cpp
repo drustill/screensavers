@@ -49,16 +49,54 @@ const float TWO_THIRDS = 2.0f / 3.0f;
 
 inline float wave(float x) { return 0.5f * (cosf(x) + 1.0f); }
 
+void hsvToRgb(float h, float s, float v, float &r, float &g, float &b) {
+  int i = (int)(h * 6.0f) % 6;
+  float f = h * 6.0f - (int)(h * 6.0f);
+  float p = v * (1.0f - s);
+  float q = v * (1.0f - f * s);
+  float t = v * (1.0f - (1.0f - f) * s);
+
+  switch (i) {
+  case 0:
+    r = v;
+    g = t;
+    b = p;
+    break;
+  case 1:
+    r = q;
+    g = v;
+    b = p;
+    break;
+  case 2:
+    r = p;
+    g = v;
+    b = t;
+    break;
+  case 3:
+    r = p;
+    g = q;
+    b = v;
+    break;
+  case 4:
+    r = t;
+    g = p;
+    b = v;
+    break;
+  case 5:
+    r = v;
+    g = p;
+    b = q;
+    break;
+  }
+}
+
 void makeColor(Particle &p, float time) {
   float cycleTime = 5.0f;
-  float colorRotation = TWO_PI / cycleTime;
-  float beginR = wave(time * colorRotation);
-  float beginG = wave((time + cycleTime * ONE_THIRD) * colorRotation);
-  float beginB = wave((time + cycleTime * TWO_THIRDS) * colorRotation);
-  float shimmer = sinf(p.shimmer * TWO_PI + time);
-  p.r = beginR + shimmer;
-  p.g = beginG + shimmer;
-  p.b = beginB + shimmer;
+  float shimmer = wave(p.shimmer * TWO_PI + time);
+  float hue = fmodf(time / cycleTime + p.shimmer, 1.0f);
+  float sat = 0.2f + 0.3f * shimmer;
+  float val = 0.8f + 0.2f * shimmer;
+  hsvToRgb(hue, sat, val, p.r, p.g, p.b);
 }
 
 void updatePhysics(float dt, float time) {
@@ -126,7 +164,7 @@ int main() {
   glVertexAttribDivisor(2, 1);
 
   glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   float lastTime = glfwGetTime();
 
