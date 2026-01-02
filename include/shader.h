@@ -90,6 +90,9 @@ public:
   void setFloat(const std::string &name, float value) const {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
   }
+  void setVec2(const std::string &name, float value1, float value2) const {
+    glUniform2f(glGetUniformLocation(ID, name.c_str()), value1, value2);
+  }
 };
 
 #endif
