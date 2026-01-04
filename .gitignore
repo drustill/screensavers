@@ -40,3 +40,6 @@ bin/
 
 # debug information files
 *.dwo
+
+# macOS installations
+savers/

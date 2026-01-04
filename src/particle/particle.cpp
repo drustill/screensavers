@@ -1,48 +1,80 @@
-#include "../../include/shader.h"
-#include "../window.cpp"
-#include <cstdlib>
-#include <vector>
+#include "particle.h"
+#include <glad/glad.h>
 
-struct Particle {
-  float x, y;
-  float vx, vy;
-  float r, g, b, a;
-};
+void Particle::init(int width, int height, const std::string &resourcePath) {
+  width_ = width;
+  height_ = height;
+  resourcePath_ = resourcePath;
 
-const int NUM_PARTICLES = 5;
-std::vector<Particle> particles(NUM_PARTICLES);
+  std::string vsPath = resourcePath + "particle.vs";
+  std::string fsPath = resourcePath + "particle.fs";
+  shader_ = new Shader(vsPath.c_str(), fsPath.c_str());
 
-const float DIMINISHER = 0.3f;
+  particles_.resize(NUM_PARTICLES);
+  initParticles();
 
-enum ColorMode { RAINBOW };
-ColorMode colorMode = RAINBOW;
+  glGenVertexArrays(1, &VAO_);
+  glGenBuffers(1, &VBO_);
 
-void initParticles() {
+  glBindVertexArray(VAO_);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_);
+  glBufferData(GL_ARRAY_BUFFER, NUM_PARTICLES * sizeof(Instance), nullptr,
+               GL_DYNAMIC_DRAW);
+
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Instance),
+                        (void *)offsetof(Instance, x));
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Instance),
+                        (void *)offsetof(Instance, r));
+  glEnableVertexAttribArray(1);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+  glEnable(GL_PROGRAM_POINT_SIZE);
+}
+
+void Particle::resize(int width, int height) {
+  width_ = width;
+  height_ = height;
+}
+
+void Particle::update(float deltaTime, float totalTime) {
+  updatePhysics(deltaTime, totalTime);
+
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_);
+  glBufferSubData(GL_ARRAY_BUFFER, 0, NUM_PARTICLES * sizeof(Instance),
+                  particles_.data());
+}
+
+void Particle::render() {
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  shader_->use();
+  glBindVertexArray(VAO_);
+  glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);
+}
+
+void Particle::cleanup() {
+  glDeleteVertexArrays(1, &VAO_);
+  glDeleteBuffers(1, &VBO_);
+  delete shader_;
+  shader_ = nullptr;
+}
+
+void Particle::initParticles() {
   for (int i = 0; i < NUM_PARTICLES; i++) {
     float angle = ((float)rand() / RAND_MAX) * 2.0f * M_PI;
     float radius = 0.3f + ((float)rand() / RAND_MAX) * 0.5f;
-    particles[i].x = cosf(angle) * radius;
-    particles[i].y = sinf(angle) * radius;
-    particles[i].vx = 0.0f;
-    particles[i].vy = 0.0f;
-    particles[i].a = 1.0f;
+    particles_[i].x = cosf(angle) * radius;
+    particles_[i].y = sinf(angle) * radius;
+    particles_[i].vx = 0.0f;
+    particles_[i].vy = 0.0f;
+    particles_[i].a = 1.0f;
   }
 }
 
-/**
- * cos(x) between -1 and 1
- * => cos(x) + 1 between 0 and 2
- * => 0.5 * (cos(x) + 1) 0 and 1
- *
- * On color wheel, R, G, B are 120 deg apart
- */
-
-const float ONE_THIRD = 1.0f / 3.0f;
-const float TWO_THIRDS = 2.0f / 3.0f;
-
-inline float wave(float x) { return 0.5f * (cosf(x) + 1.0f); }
-
-void makeColor(Particle &p, float time) {
+void Particle::makeColor(Instance &p, float time) {
   float cycleTime = 5.0f;
   float colorRotation = 2.0f * M_PI / cycleTime;
   float beginR = wave(time * colorRotation);
@@ -53,11 +85,11 @@ void makeColor(Particle &p, float time) {
   p.b = beginB;
 }
 
-void updatePhysics(float dt, float time) {
+void Particle::updatePhysics(float dt, float time) {
   float attractorX = 0.0f;
   float attractorY = 0.0f;
 
-  for (auto &p : particles) {
+  for (auto &p : particles_) {
     float dx = attractorX - p.x;
     float dy = attractorY - p.y;
     float dist = sqrtf(dx * dx + dy * dy + 0.1f);
@@ -82,54 +114,3 @@ void updatePhysics(float dt, float time) {
   }
 }
 
-int main() {
-  Window window(800, 600, "Particle");
-  Shader shader("src/particle/particle.vs", "src/particle/particle.fs");
-  initParticles();
-
-  unsigned int VAO, VBO;
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
-
-  glBindVertexArray(VAO);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, NUM_PARTICLES * sizeof(Particle), nullptr,
-               GL_DYNAMIC_DRAW);
-
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Particle),
-                        (void *)offsetof(Particle, x));
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Particle),
-                        (void *)offsetof(Particle, r));
-  glEnableVertexAttribArray(1);
-
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-  glEnable(GL_PROGRAM_POINT_SIZE);
-
-  float lastTime = glfwGetTime();
-
-  while (!window.shouldClose()) {
-    float currentTime = glfwGetTime();
-    float deltaTime = currentTime - lastTime;
-    lastTime = currentTime;
-
-    updatePhysics(deltaTime, currentTime);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, NUM_PARTICLES * sizeof(Particle),
-                    particles.data());
-
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    shader.use();
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);
-    window.swapBuffers();
-    window.pollEvents();
-  }
-
-  glDeleteVertexArrays(1, &VAO);
-  glDeleteBuffers(1, &VBO);
-  return 0;
-}

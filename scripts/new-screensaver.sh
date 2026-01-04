@@ -11,5 +11,5 @@ if [ -z "$name" ]; then
 fi
 
 mkdir src/$name
-touch src/$name/$name.cpp src/$name/$name.vs src/$name/$name.fs
+touch src/$name/$name.cpp src/$name/$name.h src/$name/$name.vs src/$name/$name.fs src/$name/macos.mm src/$name/main.cpp
 echo "Initialized $name"
