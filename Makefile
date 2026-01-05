@@ -28,6 +28,9 @@ quads: $(BINDIR) src/quads/quads.cpp src/quads/main.cpp
 clover: $(BINDIR) src/clover/clover.cpp src/clover/main.cpp
 	clang++ -o $(BINDIR)/clover src/clover/main.cpp src/clover/clover.cpp src/glad.cpp $(CXXFLAGS)
 
+windfield: $(BINDIR) src/windfield/windfield.cpp src/windfield/main.cpp
+	clang++ -o $(BINDIR)/windfield src/windfield/main.cpp src/windfield/windfield.cpp src/glad.cpp $(CXXFLAGS)
+
 plasma.saver:
 	./scripts/build-saver.sh plasma PlasmaSaverView
 
@@ -56,4 +59,4 @@ clean:
 	rm -rf $(BINDIR)/*
 	rm -rf $(SAVERDIR)
 
-.PHONY: all new savers install uninstall clean plasma particle quads clover plasma.saver particle.saver quads.saver clover.saver
+.PHONY: all new savers install uninstall clean plasma particle quads clover windfield plasma.saver particle.saver quads.saver clover.saver
