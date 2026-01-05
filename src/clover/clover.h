@@ -17,7 +17,7 @@ public:
 
 private:
   static constexpr float TWO_PI = 2.0f * M_PI;
-  static constexpr int NUM_CLOVERS = 50;
+  static constexpr int NUM_CLOVERS = 1;
 
   struct Instance {
     float x, y;

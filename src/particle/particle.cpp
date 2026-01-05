@@ -1,23 +1,23 @@
 #include "particle.h"
 #include <glad/glad.h>
 
-void Particle::init(int width, int height, const std::string &resourcePath) {
-  width_ = width;
-  height_ = height;
-  resourcePath_ = resourcePath;
+void Particle::init(int w, int h, const std::string &path) {
+  width = w;
+  height = h;
+  resourcePath = path;
 
   std::string vsPath = resourcePath + "particle.vs";
   std::string fsPath = resourcePath + "particle.fs";
-  shader_ = new Shader(vsPath.c_str(), fsPath.c_str());
+  shader = new Shader(vsPath.c_str(), fsPath.c_str());
 
-  particles_.resize(NUM_PARTICLES);
+  particles.resize(NUM_PARTICLES);
   initParticles();
 
-  glGenVertexArrays(1, &VAO_);
-  glGenBuffers(1, &VBO_);
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &VBO);
 
-  glBindVertexArray(VAO_);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO_);
+  glBindVertexArray(VAO);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, NUM_PARTICLES * sizeof(Instance), nullptr,
                GL_DYNAMIC_DRAW);
 
@@ -33,44 +33,44 @@ void Particle::init(int width, int height, const std::string &resourcePath) {
   glEnable(GL_PROGRAM_POINT_SIZE);
 }
 
-void Particle::resize(int width, int height) {
-  width_ = width;
-  height_ = height;
+void Particle::resize(int w, int h) {
+  width = w;
+  height = h;
 }
 
 void Particle::update(float deltaTime, float totalTime) {
   updatePhysics(deltaTime, totalTime);
 
-  glBindBuffer(GL_ARRAY_BUFFER, VBO_);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferSubData(GL_ARRAY_BUFFER, 0, NUM_PARTICLES * sizeof(Instance),
-                  particles_.data());
+                  particles.data());
 }
 
 void Particle::render() {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  shader_->use();
-  glBindVertexArray(VAO_);
+  shader->use();
+  glBindVertexArray(VAO);
   glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);
 }
 
 void Particle::cleanup() {
-  glDeleteVertexArrays(1, &VAO_);
-  glDeleteBuffers(1, &VBO_);
-  delete shader_;
-  shader_ = nullptr;
+  glDeleteVertexArrays(1, &VAO);
+  glDeleteBuffers(1, &VBO);
+  delete shader;
+  shader = nullptr;
 }
 
 void Particle::initParticles() {
   for (int i = 0; i < NUM_PARTICLES; i++) {
     float angle = ((float)rand() / RAND_MAX) * 2.0f * M_PI;
     float radius = 0.3f + ((float)rand() / RAND_MAX) * 0.5f;
-    particles_[i].x = cosf(angle) * radius;
-    particles_[i].y = sinf(angle) * radius;
-    particles_[i].vx = 0.0f;
-    particles_[i].vy = 0.0f;
-    particles_[i].a = 1.0f;
+    particles[i].x = cosf(angle) * radius;
+    particles[i].y = sinf(angle) * radius;
+    particles[i].vx = 0.0f;
+    particles[i].vy = 0.0f;
+    particles[i].a = 1.0f;
   }
 }
 
@@ -89,7 +89,7 @@ void Particle::updatePhysics(float dt, float time) {
   float attractorX = 0.0f;
   float attractorY = 0.0f;
 
-  for (auto &p : particles_) {
+  for (auto &p : particles) {
     float dx = attractorX - p.x;
     float dy = attractorY - p.y;
     float dist = sqrtf(dx * dx + dy * dy + 0.1f);
@@ -113,4 +113,3 @@ void Particle::updatePhysics(float dt, float time) {
     }
   }
 }
-

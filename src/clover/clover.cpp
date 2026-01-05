@@ -1,10 +1,10 @@
 #include "clover.h"
 #include <glad/glad.h>
 
-void Clover::init(int width, int height, const std::string &resourcePath) {
-  width_ = width;
-  height_ = height;
-  resourcePath_ = resourcePath;
+void Clover::init(int w, int h, const std::string &path) {
+  width = w;
+  height = h;
+  resourcePath = path;
 
   std::string vsPath = resourcePath + "clover.vs";
   std::string fsPath = resourcePath + "clover.fs";
@@ -51,9 +51,9 @@ void Clover::init(int width, int height, const std::string &resourcePath) {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void Clover::resize(int width, int height) {
-  width_ = width;
-  height_ = height;
+void Clover::resize(int w, int h) {
+  width = w;
+  height = h;
 }
 
 void Clover::update(float deltaTime, float totalTime) {
@@ -69,7 +69,7 @@ void Clover::render() {
   glClear(GL_COLOR_BUFFER_BIT);
 
   shader->use();
-  shader->setFloat("uAspectRatio", (float)width_ / (float)height_);
+  shader->setFloat("uAspectRatio", (float)width / (float)height);
   shader->setFloat("time", currentTime);
 
   glBindVertexArray(VAO);

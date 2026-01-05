@@ -52,14 +52,14 @@ int runWithGLFW(int width, int height, const std::string &title,
     }
   });
 
-  float lastTime = static_cast<float>(glfwGetTime());
+  float lastTime = glfwGetTime();
 
   while (!glfwWindowShouldClose(window)) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
       glfwSetWindowShouldClose(window, true);
     }
 
-    float currentTime = static_cast<float>(glfwGetTime());
+    float currentTime = glfwGetTime();
     float deltaTime = currentTime - lastTime;
     lastTime = currentTime;
 

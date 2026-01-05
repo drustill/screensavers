@@ -14,9 +14,9 @@ public:
   virtual void cleanup() = 0;
 
 protected:
-  int width_ = 0;
-  int height_ = 0;
-  std::string resourcePath_;
+  int width = 0;
+  int height = 0;
+  std::string resourcePath;
 };
 
 #endif

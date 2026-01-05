@@ -1,16 +1,16 @@
 #include "quads.h"
 #include <glad/glad.h>
 
-void Quads::init(int width, int height, const std::string &resourcePath) {
-  width_ = width;
-  height_ = height;
-  resourcePath_ = resourcePath;
+void Quads::init(int w, int h, const std::string &path) {
+  width = w;
+  height = h;
+  resourcePath = path;
 
   std::string vsPath = resourcePath + "quads.vs";
   std::string fsPath = resourcePath + "quads.fs";
-  shader_ = new Shader(vsPath.c_str(), fsPath.c_str());
+  shader = new Shader(vsPath.c_str(), fsPath.c_str());
 
-  particles_.resize(NUM_PARTICLES);
+  particles.resize(NUM_PARTICLES);
   initParticles();
 
   float quad[] = {
@@ -18,17 +18,17 @@ void Quads::init(int width, int height, const std::string &resourcePath) {
       -0.5f, -0.5f, 0.5f, 0.5f,  -0.5f, 0.5f,
   };
 
-  glGenVertexArrays(1, &VAO_);
-  glGenBuffers(1, &particleVBO_);
-  glGenBuffers(1, &quadVBO_);
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &particleVBO);
+  glGenBuffers(1, &quadVBO);
 
-  glBindVertexArray(VAO_);
-  glBindBuffer(GL_ARRAY_BUFFER, quadVBO_);
+  glBindVertexArray(VAO);
+  glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
 
-  glBindBuffer(GL_ARRAY_BUFFER, particleVBO_);
+  glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
   glBufferData(GL_ARRAY_BUFFER, NUM_PARTICLES * sizeof(Particle), nullptr,
                GL_DYNAMIC_DRAW);
 
@@ -46,49 +46,49 @@ void Quads::init(int width, int height, const std::string &resourcePath) {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 }
 
-void Quads::resize(int width, int height) {
-  width_ = width;
-  height_ = height;
+void Quads::resize(int w, int h) {
+  width = w;
+  height = h;
 }
 
 void Quads::update(float deltaTime, float totalTime) {
   updatePhysics(deltaTime, totalTime);
 
-  glBindBuffer(GL_ARRAY_BUFFER, particleVBO_);
+  glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
   glBufferSubData(GL_ARRAY_BUFFER, 0, NUM_PARTICLES * sizeof(Particle),
-                  particles_.data());
+                  particles.data());
 }
 
 void Quads::render() {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  shader_->use();
-  shader_->setFloat("uSize", 0.5f);
-  shader_->setFloat("uAspect", (float)width_ / (float)height_);
+  shader->use();
+  shader->setFloat("uSize", 0.5f);
+  shader->setFloat("uAspect", (float)width / (float)height);
 
   glBindVertexArray(VAO_);
   glDrawArraysInstanced(GL_TRIANGLES, 0, 6, NUM_PARTICLES);
 }
 
 void Quads::cleanup() {
-  glDeleteVertexArrays(1, &VAO_);
-  glDeleteBuffers(1, &particleVBO_);
-  glDeleteBuffers(1, &quadVBO_);
-  delete shader_;
-  shader_ = nullptr;
+  glDeleteVertexArrays(1, &VAO);
+  glDeleteBuffers(1, &particleVBO);
+  glDeleteBuffers(1, &quadVBO);
+  delete shader;
+  shader = nullptr;
 }
 
 void Quads::initParticles() {
   for (int i = 0; i < NUM_PARTICLES; i++) {
     float angle = randf() * TWO_PI;
     float radius = 0.3f + randf() * 0.5f;
-    particles_[i].x = cosf(angle) * radius;
-    particles_[i].y = sinf(angle) * radius;
-    particles_[i].vx = 0.0f;
-    particles_[i].vy = 0.0f;
-    particles_[i].shimmer = randf();
-    particles_[i].a = 1.0f;
+    particles[i].x = cosf(angle) * radius;
+    particles[i].y = sinf(angle) * radius;
+    particles[i].vx = 0.0f;
+    particles[i].vy = 0.0f;
+    particles[i].shimmer = randf();
+    particles[i].a = 1.0f;
   }
 }
 
@@ -108,7 +108,7 @@ void Quads::updatePhysics(float dt, float time) {
   float attractorX = 0.0f;
   float attractorY = 0.0f;
 
-  for (auto &p : particles_) {
+  for (auto &p : particles) {
     float dx = attractorX - p.x;
     float dy = attractorY - p.y;
     float dist = sqrtf(dx * dx + dy * dy + 0.1f);
@@ -132,4 +132,3 @@ void Quads::updatePhysics(float dt, float time) {
     }
   }
 }
-

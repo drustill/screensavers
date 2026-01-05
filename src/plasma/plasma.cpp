@@ -1,10 +1,10 @@
 #include "plasma.h"
 #include <glad/glad.h>
 
-void Plasma::init(int width, int height, const std::string &resourcePath) {
-  width_ = width;
-  height_ = height;
-  resourcePath_ = resourcePath;
+void Plasma::init(int w, int h, const std::string &path) {
+  width = w;
+  height = h;
+  resourcePath = path;
 
   std::string vsPath = resourcePath + "plasma.vs";
   std::string fsPath = resourcePath + "plasma.fs";
@@ -27,8 +27,8 @@ void Plasma::init(int width, int height, const std::string &resourcePath) {
 }
 
 void Plasma::resize(int width, int height) {
-  width_ = width;
-  height_ = height;
+  width = width;
+  height = height;
 }
 
 void Plasma::update(float deltaTime, float totalTime) {
