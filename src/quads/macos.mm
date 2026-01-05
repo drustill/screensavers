@@ -4,4 +4,4 @@
 #include "../backends/ScreenSaverBridge.h"
 #include "quads.h"
 
-SCREENSAVER_MAIN(QuadsSaverView, Quads)
+SAVER_TEMPLATE(QuadsSaverView, Quads)

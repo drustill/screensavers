@@ -1,17 +1,14 @@
-#ifndef SCREENSAVER_BRIDGE_H
-#define SCREENSAVER_BRIDGE_H
+#ifndef SAVER_TEMPLATE_H
+#define SAVER_TEMPLATE_H
 
 #import <Cocoa/Cocoa.h>
 #import <ScreenSaver/ScreenSaver.h>
 
 class Screensaver;
 
-// This macro creates a ScreenSaverView subclass that wraps a C++ Screensaver
-// Usage in your screensaver's .mm file:
-//   #include "my_screensaver.h"
-//   SCREENSAVER_MAIN(MyScreensaverView, MyScreensaver)
+// Creates a ScreenSaverView subclass that wraps a C++ Screensaver
 
-#define SCREENSAVER_MAIN(ViewClassName, ScreensaverClass)                      \
+#define SAVER_TEMPLATE(ViewClassName, ScreensaverClass)                        \
   @interface ViewClassName : ScreenSaverView {                                 \
     NSOpenGLContext *glContext;                                                \
     NSOpenGLPixelFormat *pixelFormat;                                          \

@@ -4,4 +4,4 @@
 #include "../backends/ScreenSaverBridge.h"
 #include "particle.h"
 
-SCREENSAVER_MAIN(ParticleSaverView, Particle)
+SAVER_TEMPLATE(ParticleSaverView, Particle)

@@ -4,4 +4,4 @@
 #include "../backends/ScreenSaverBridge.h"
 #include "plasma.h"
 
-SCREENSAVER_MAIN(PlasmaSaverView, Plasma)
+SAVER_TEMPLATE(PlasmaSaverView, Plasma)

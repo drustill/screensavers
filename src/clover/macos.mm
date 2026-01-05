@@ -4,4 +4,4 @@
 #include "../backends/ScreenSaverBridge.h"
 #include "clover.h"
 
-SCREENSAVER_MAIN(CloverSaverView, Clover)
+SAVER_TEMPLATE(CloverSaverView, Clover)
