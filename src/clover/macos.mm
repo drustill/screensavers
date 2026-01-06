@@ -4,4 +4,4 @@
 #include "../backends/SaverTemplate.h"
 #include "clover.h"
 
-SAVER_TEMPLATE(CloverSaverView, Clover)
+SAVER_TEMPLATE(CloverSaverView, CloverField)

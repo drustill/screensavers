@@ -1,22 +1,22 @@
 #version 330 core
-
-layout (location = 0) in vec2 aQuadVertex;
-layout (location = 1) in vec2 aCloverPos;
-layout (location = 2) in float aSize;
-layout (location = 3) in float aRotation;
-
-out vec2 uv;
-out float vSize;
-out float vRotation;
+layout(location = 0) in vec2 aPos;
+layout(location = 1) in vec2 aGridPos;
+layout(location = 2) in vec2 aDirection;
 
 uniform float uAspectRatio;
+uniform float uArrowLength;
 
 void main() {
-    vec2 p = aQuadVertex * aSize;
-    p.x /= uAspectRatio;
-    p += aCloverPos;
-    gl_Position = vec4(p, 0.0, 1.0);
-    uv = aQuadVertex;
-    vSize = aSize;
-    vRotation = aRotation;
+    float angle = atan(aDirection.y, aDirection.x);
+    float c = cos(angle);
+    float s = sin(angle);
+    mat2 rot = mat2(c, s, -s, c);
+    
+    vec2 arrow = rot * (aPos * uArrowLength * length(aDirection));
+    arrow.x /= uAspectRatio;
+    
+    vec2 pos = aGridPos + arrow;
+    pos.x /= uAspectRatio;
+    
+    gl_Position = vec4(pos, 0.0, 1.0);
 }
