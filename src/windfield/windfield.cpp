@@ -3,7 +3,6 @@
 #include <random>
 
 void WindField::initPermutation() {
-  // Standard Perlin permutation table
   std::vector<int> p(256);
   for (int i = 0; i < 256; i++)
     p[i] = i;
@@ -18,15 +17,11 @@ void WindField::initPermutation() {
   }
 }
 
-float WindField::fade(float t) {
-  // 6t^5 - 15t^4 + 10t^3
-  return t * t * t * (t * (t * 6 - 15) + 10);
-}
+float WindField::fade(float t) { return t * t * t * (t * (t * 6 - 15) + 10); }
 
 float WindField::lerp(float a, float b, float t) { return a + t * (b - a); }
 
 float WindField::grad(int hash, float x, float y) {
-  // Convert low 2 bits of hash to gradient direction
   int h = hash & 3;
   float u = h < 2 ? x : y;
   float v = h < 2 ? y : x;
@@ -34,25 +29,20 @@ float WindField::grad(int hash, float x, float y) {
 }
 
 float WindField::noise2D(float x, float y) {
-  // Find unit square containing point
   int xi = (int)floor(x) & 255;
   int yi = (int)floor(y) & 255;
 
-  // Relative position in square
   float xf = x - floor(x);
   float yf = y - floor(y);
 
-  // Fade curves
   float u = fade(xf);
   float v = fade(yf);
 
-  // Hash corners
   int aa = permutation[permutation[xi] + yi];
   int ab = permutation[permutation[xi] + yi + 1];
   int ba = permutation[permutation[xi + 1] + yi];
   int bb = permutation[permutation[xi + 1] + yi + 1];
 
-  // Blend
   float x1 = lerp(grad(aa, xf, yf), grad(ba, xf - 1, yf), u);
   float x2 = lerp(grad(ab, xf, yf - 1), grad(bb, xf - 1, yf - 1), u);
 
@@ -60,17 +50,13 @@ float WindField::noise2D(float x, float y) {
 }
 
 Vec2 WindField::sampleWind(float x, float y, float time) {
-  // Sample noise at different offsets for x and y components
-  // Adding time makes it animate
   float scale = 2.0f;
   float noiseX = noise2D(x * scale + time * 0.3f, y * scale);
   float noiseY = noise2D(x * scale + 100.0f, y * scale + time * 0.3f);
 
-  // Base wind direction (mostly horizontal)
   float baseWindX = 0.5f;
   float baseWindY = 0.0f;
 
-  // Add noise variation
   float windX = baseWindX + noiseX * 0.4f;
   float windY = baseWindY + noiseY * 0.3f;
 
@@ -88,9 +74,9 @@ void WindField::init(int w, int h, const std::string &path) {
   std::string fsPath = resourcePath + "windfield.fs";
   shader = new Shader(vsPath.c_str(), fsPath.c_str());
 
-  float line[] = {0.0f, 0.0f, 1.0f, 0.0f};
-  float quad[] = {0.0f, -0.5f, 1.0f, -0.5f, 1.0f, 0.5f,
-                  0.0f, -0.5f, 1.0f, 0.5f,  0.0f, 0.5f};
+  float line[] = {-0.5f, 0.0f, 0.5f, 0.0f};
+  float quad[] = {-0.5f, -0.5f, 0.5f, -0.5f, 0.5f,  0.5f,
+                  -0.5f, -0.5f, 0.5f, 0.5f,  -0.5f, 0.5f};
 
   float margin = 0.1f;
   gridPoints.resize(GRID_SIZE * GRID_SIZE);
@@ -113,6 +99,7 @@ void WindField::init(int w, int h, const std::string &path) {
   glBindVertexArray(VAO);
 
   glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+  // glBufferData(GL_ARRAY_BUFFER, sizeof(line), line, GL_STATIC_DRAW);
   glBufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
@@ -131,6 +118,10 @@ void WindField::init(int w, int h, const std::string &path) {
   glVertexAttribDivisor(2, 1);
 
   glBindVertexArray(0);
+
+  glEnable(GL_LINE_SMOOTH);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void WindField::update(float deltaTime, float totalTime) {
@@ -154,7 +145,7 @@ void WindField::render() {
   shader->use();
   shader->setFloat("uAspectRatio", aspectRatio);
   shader->setFloat("uArrowLength", 0.08f);
-  shader->setFloat("uArrowThickness", 0.008f);
+  shader->setFloat("uArrowThickness", 0.01f);
 
   glBindVertexArray(VAO);
   glDrawArraysInstanced(GL_TRIANGLES, 0, 6, GRID_SIZE * GRID_SIZE);
