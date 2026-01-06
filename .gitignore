@@ -43,3 +43,7 @@ bin/
 
 # macOS installations
 savers/
+
+# not in use yet
+vendor/
+.clangd

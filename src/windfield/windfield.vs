@@ -14,7 +14,6 @@ void main() {
     
     vec2 pos = rot * (aPos * uArrowLength * length(aDirection));
     pos += aGridPos;
-    pos.x /= uAspectRatio;
     
     gl_Position = vec4(pos, 0.0, 1.0);
 }

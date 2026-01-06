@@ -56,6 +56,10 @@ public:
     return *this;
   }
   float length() const { return sqrtf(x * x + y * y); }
+  Vec2 normalized() const {
+    float len = length();
+    return len > 0 ? Vec2(x / len, y / len) : Vec2(0, 0);
+  }
 };
 
 #endif
