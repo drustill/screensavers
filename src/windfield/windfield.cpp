@@ -89,6 +89,8 @@ void WindField::init(int w, int h, const std::string &path) {
   shader = new Shader(vsPath.c_str(), fsPath.c_str());
 
   float line[] = {0.0f, 0.0f, 1.0f, 0.0f};
+  float quad[] = {0.0f, -0.5f, 1.0f, -0.5f, 1.0f, 0.5f,
+                  0.0f, -0.5f, 1.0f, 0.5f,  0.0f, 0.5f};
 
   float margin = 0.1f;
   gridPoints.resize(GRID_SIZE * GRID_SIZE);
@@ -111,7 +113,7 @@ void WindField::init(int w, int h, const std::string &path) {
   glBindVertexArray(VAO);
 
   glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(line), line, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
 
@@ -152,9 +154,10 @@ void WindField::render() {
   shader->use();
   shader->setFloat("uAspectRatio", aspectRatio);
   shader->setFloat("uArrowLength", 0.08f);
+  shader->setFloat("uArrowThickness", 0.008f);
 
   glBindVertexArray(VAO);
-  glDrawArraysInstanced(GL_LINES, 0, 2, GRID_SIZE * GRID_SIZE);
+  glDrawArraysInstanced(GL_TRIANGLES, 0, 6, GRID_SIZE * GRID_SIZE);
 }
 
 void WindField::cleanup() {
