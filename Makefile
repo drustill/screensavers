@@ -31,6 +31,9 @@ clover: $(BINDIR) src/clover/clover.cpp src/clover/main.cpp
 windfield: $(BINDIR) src/windfield/windfield.cpp src/windfield/main.cpp
 	clang++ -o $(BINDIR)/windfield src/windfield/main.cpp src/windfield/windfield.cpp src/glad.cpp $(CXXFLAGS)
 
+red-dust: $(BINDIR) src/red_dust/red_dust.cpp src/red_dust/main.cpp
+	clang++ -o $(BINDIR)/red-dust src/red_dust/main.cpp src/red_dust/red_dust.cpp src/glad.cpp $(CXXFLAGS)
+
 plasma.saver:
 	./scripts/build-saver.sh plasma PlasmaSaverView
 
@@ -42,6 +45,9 @@ quads.saver:
 
 clover.saver:
 	./scripts/build-saver.sh clover CloverSaverView
+
+red-dust.saver:
+	./scripts/build-saver.sh red_dust RedDustSaverView "Red Dust"
 
 install: savers
 	@echo "Installing to ~/Library/Screen Savers/..."
