@@ -23,18 +23,18 @@ void WindField::initParticles() {
 }
 
 void WindField::respawnParticle(Particle &p) {
-  p.position.x = -1.0 + randf() * 0.1f;
+  p.position.x = -1.25 + randf() * 0.1f;
   p.position.y = -1.0 + randf() * 2.0f;
   p.velocity = Vec2();
   p.age = 0.0f;
 }
 
 Vec2 WindField::sampleWind(float x, float y, float time) {
-  float scale = 2.0f;
+  float scale = 5.0f;
   float noiseX = perlin.noise(x * scale + time * 0.3f, y * scale);
   float noiseY = perlin.noise(x * scale + 100.0f, y * scale + time * 0.3f);
 
-  float baseWindX = 0.5f;
+  float baseWindX = 0.2f;
   float baseWindY = 0.0f;
 
   float windX = baseWindX + noiseX * 0.4f;
@@ -126,8 +126,8 @@ void WindField::update(float deltaTime, float totalTime) {
     p.velocity += (wind - p.velocity) * deltaTime;
     p.position += p.velocity * deltaTime;
     p.age += deltaTime;
-    if (p.position.x > 1.1f || p.position.x < -1.1f || p.position.y > 1.1f ||
-        p.position.y < -1.1f || p.age > 10.0f) {
+    if (p.position.x > 1.5f || p.position.x < -1.5f || p.position.y > 1.5f ||
+        p.position.y < -1.5f || p.age > 15.0f) {
       respawnParticle(p);
     }
     positions[i] = p.position;
