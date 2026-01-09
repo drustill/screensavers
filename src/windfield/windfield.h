@@ -1,7 +1,7 @@
 #ifndef WINDFIELD_H
 #define WINDFIELD_H
 
-#include "include/perlin_noise.h"
+#include "perlin_noise.h"
 #include "screensaver.h"
 #include "shader.h"
 #include "vec2.h"
@@ -37,7 +37,7 @@ private:
   float time = 0.0f, aspectRatio;
 
   static const int GRID_SIZE = 20;
-  static const int PARTICLE_COUNT = 2000;
+  static const int PARTICLE_COUNT = 50000;
   std::vector<GridPoint> gridPoints;
   std::vector<Particle> particles;
 
