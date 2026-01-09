@@ -1,6 +1,7 @@
 #include "windfield.h"
 #include "shader.h"
 #include "vec2.h"
+#include <cstddef>
 #include <vector>
 
 void WindField::initParticles() {
@@ -15,10 +16,20 @@ void WindField::initParticles() {
 
   glBindVertexArray(particleVAO);
   glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
-  glBufferData(GL_ARRAY_BUFFER, PARTICLE_COUNT * sizeof(Vec2), nullptr,
+  glBufferData(GL_ARRAY_BUFFER, PARTICLE_COUNT * sizeof(Particle), nullptr,
                GL_DYNAMIC_DRAW);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2), (void *)0);
+
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Particle), (void *)0);
   glEnableVertexAttribArray(0);
+
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Particle),
+                        (void *)offsetof(Particle, velocity));
+  glEnableVertexAttribArray(1);
+
+  glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(Particle),
+                        (void *)offsetof(Particle, age));
+  glEnableVertexAttribArray(2);
+
   glBindVertexArray(0);
 }
 
@@ -119,7 +130,6 @@ void WindField::update(float deltaTime, float totalTime) {
     }
   }
 
-  std::vector<Vec2> positions(PARTICLE_COUNT);
   for (int i = 0; i < PARTICLE_COUNT; i++) {
     Particle &p = particles[i];
     Vec2 wind = sampleWind(p.position.x, p.position.y, totalTime);
@@ -130,15 +140,15 @@ void WindField::update(float deltaTime, float totalTime) {
         p.position.y < -1.5f || p.age > 15.0f) {
       respawnParticle(p);
     }
-    positions[i] = p.position;
   }
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferSubData(GL_ARRAY_BUFFER, 0, gridPoints.size() * sizeof(GridPoint),
                   gridPoints.data());
+
   glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
-  glBufferSubData(GL_ARRAY_BUFFER, 0, PARTICLE_COUNT * sizeof(Vec2),
-                  positions.data());
+  glBufferSubData(GL_ARRAY_BUFFER, 0, PARTICLE_COUNT * sizeof(Particle),
+                  particles.data());
 }
 
 void WindField::render() {

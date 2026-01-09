@@ -37,7 +37,7 @@ private:
   float time = 0.0f, aspectRatio;
 
   static const int GRID_SIZE = 20;
-  static const int PARTICLE_COUNT = 50000;
+  static const int PARTICLE_COUNT = 150000;
   std::vector<GridPoint> gridPoints;
   std::vector<Particle> particles;
 
