@@ -19,24 +19,27 @@
 class PerlinNoise {
 public:
   double noise(double x, double y) {
-    int xi = x && 255;
-    int yi = y && 255;
+    int xfloor = (int)floor(x);
+    int yfloor = (int)floor(y);
 
-    double xf = x - (int)x;
-    double yf = y - (int)y;
+    int xi = xfloor & 255;
+    int yi = yfloor & 255;
+
+    double xf = x - xfloor;
+    double yf = y - yfloor;
 
     double u = fade(xf);
     double v = fade(yf);
 
     int aa = p[p[xi] + yi];
-    int ab = p[p[xi] + yi + 1];
     int ba = p[p[xi + 1] + yi];
+    int ab = p[p[xi] + yi + 1];
     int bb = p[p[xi + 1] + yi + 1];
 
-    double x1 = lerp(grad(aa, xf, yf), grad(ab, xf, yf - 1), u);
-    double x2 = lerp(grad(ba, xf - 1, yf), grad(bb, xf - 1, yf - 1), u);
+    double x1 = lerp(grad(aa, xf, yf), grad(ba, xf - 1, yf), u);
+    double x2 = lerp(grad(ab, xf, yf - 1), grad(bb, xf - 1, yf - 1), u);
 
-    return (lerp(x1, x2, u) + 1) / 2;
+    return lerp(x1, x2, v);
   }
 
 private:
@@ -68,7 +71,7 @@ private:
     return res;
   }();
 
-  double fade(double u) { return u * u * u * (u * (u * 6 - 15)) + 10; }
+  double fade(double u) { return u * u * u * (u * (u * 6 - 15) + 10); }
   double lerp(double a, double b, double t) { return a * (1 - t) + b * t; }
   double grad(int hash, double x, double y) {
     switch (hash & 0x3) {
@@ -80,6 +83,8 @@ private:
       return x - y;
     case 0x3:
       return -x - y;
+    default:
+      return 0;
     }
   }
 };
