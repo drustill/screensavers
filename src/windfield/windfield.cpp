@@ -1,4 +1,33 @@
 #include "windfield.h"
+#include "shader.h"
+#include "vec2.h"
+#include <vector>
+
+void WindField::initParticles() {
+  particles.resize(PARTICLE_COUNT);
+  for (Particle &p : particles) {
+    respawnParticle(p);
+    p.age = randf();
+  }
+
+  glGenVertexArrays(1, &particleVAO);
+  glGenBuffers(1, &particleVBO);
+
+  glBindVertexArray(particleVAO);
+  glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
+  glBufferData(GL_ARRAY_BUFFER, PARTICLE_COUNT * sizeof(Vec2), nullptr,
+               GL_DYNAMIC_DRAW);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2), (void *)0);
+  glEnableVertexAttribArray(0);
+  glBindVertexArray(0);
+}
+
+void WindField::respawnParticle(Particle &p) {
+  p.position.x = -1.0 + randf() * 0.1f;
+  p.position.y = -1.0 + randf() * 2.0f;
+  p.velocity = Vec2();
+  p.age = 0.0f;
+}
 
 Vec2 WindField::sampleWind(float x, float y, float time) {
   float scale = 2.0f;
@@ -72,6 +101,12 @@ void WindField::init(int w, int h, const std::string &path) {
   glEnable(GL_LINE_SMOOTH);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  std::string particleVsPath = resourcePath + "particle.vs";
+  std::string particleFsPath = resourcePath + "particle.fs";
+  particleShader = new Shader(particleVsPath.c_str(), particleFsPath.c_str());
+
+  initParticles();
 }
 
 void WindField::update(float deltaTime, float totalTime) {
@@ -84,9 +119,26 @@ void WindField::update(float deltaTime, float totalTime) {
     }
   }
 
+  std::vector<Vec2> positions(PARTICLE_COUNT);
+  for (int i = 0; i < PARTICLE_COUNT; i++) {
+    Particle &p = particles[i];
+    Vec2 wind = sampleWind(p.position.x, p.position.y, totalTime);
+    p.velocity += (wind - p.velocity) * deltaTime;
+    p.position += p.velocity * deltaTime;
+    p.age += deltaTime;
+    if (p.position.x > 1.1f || p.position.x < -1.1f || p.position.y > 1.1f ||
+        p.position.y < -1.1f || p.age > 10.0f) {
+      respawnParticle(p);
+    }
+    positions[i] = p.position;
+  }
+
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferSubData(GL_ARRAY_BUFFER, 0, gridPoints.size() * sizeof(GridPoint),
                   gridPoints.data());
+  glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
+  glBufferSubData(GL_ARRAY_BUFFER, 0, PARTICLE_COUNT * sizeof(Vec2),
+                  positions.data());
 }
 
 void WindField::render() {
@@ -99,12 +151,19 @@ void WindField::render() {
 
   glBindVertexArray(VAO);
   glDrawArraysInstanced(GL_TRIANGLES, 0, 6, GRID_SIZE * GRID_SIZE);
+
+  particleShader->use();
+  glBindVertexArray(particleVAO);
+  glPointSize(2.0f);
+  glDrawArrays(GL_POINTS, 0, PARTICLE_COUNT);
 }
 
 void WindField::cleanup() {
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &lineVBO);
   glDeleteBuffers(1, &VBO);
+  glDeleteVertexArrays(1, &particleVAO);
+  glDeleteBuffers(1, &particleVBO);
 }
 
 void WindField::resize(int w, int h) {
