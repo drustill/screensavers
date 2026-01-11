@@ -19,10 +19,10 @@ cat > "$outdir/Contents/Info.plist" << EOF
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleExecutable</key><string>$display_name</string>
+    <key>CFBundleExecutable</key><string>$name</string>
     <key>CFBundleIdentifier</key><string>com.screensaver.$name</string>
     <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
-    <key>CFBundleName</key><string>$display_name</string>
+    <key>CFBundleName</key><string>$name</string>
     <key>CFBundlePackageType</key><string>BNDL</string>
     <key>CFBundleShortVersionString</key><string>1.0</string>
     <key>CFBundleVersion</key><string>1</string>

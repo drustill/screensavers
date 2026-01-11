@@ -31,8 +31,8 @@ clover: $(BINDIR) src/clover/clover.cpp src/clover/main.cpp
 windfield: $(BINDIR) src/windfield/windfield.cpp src/windfield/main.cpp
 	clang++ -o $(BINDIR)/windfield src/windfield/main.cpp src/windfield/windfield.cpp src/glad.cpp $(CXXFLAGS)
 
-red-dust: $(BINDIR) src/red_dust/red_dust.cpp src/red_dust/main.cpp
-	clang++ -o $(BINDIR)/red-dust src/red_dust/main.cpp src/red_dust/red_dust.cpp src/glad.cpp $(CXXFLAGS)
+reddust: $(BINDIR) src/reddust/reddust.cpp src/reddust/main.cpp
+	clang++ -o $(BINDIR)/reddust src/reddust/main.cpp src/reddust/reddust.cpp src/glad.cpp $(CXXFLAGS)
 
 plasma.saver:
 	./scripts/build-saver.sh plasma PlasmaSaverView
@@ -46,8 +46,8 @@ quads.saver:
 clover.saver:
 	./scripts/build-saver.sh clover CloverSaverView
 
-red-dust.saver:
-	./scripts/build-saver.sh red_dust RedDustSaverView "Red Dust"
+reddust.saver:
+	./scripts/build-saver.sh reddust RedDustSaverView 
 
 install: savers
 	@echo "Installing to ~/Library/Screen Savers/..."
@@ -65,4 +65,4 @@ clean:
 	rm -rf $(BINDIR)/*
 	rm -rf $(SAVERDIR)
 
-.PHONY: all new savers install uninstall clean plasma particle quads clover windfield plasma.saver particle.saver quads.saver clover.saver
+.PHONY: all new savers install uninstall clean plasma particle quads clover windfield plasma.saver particle.saver quads.saver clover.saver reddust.saver reddust

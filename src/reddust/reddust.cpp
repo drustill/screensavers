@@ -1,4 +1,4 @@
-#include "red_dust.h"
+#include "reddust.h"
 #include <cstddef>
 
 void RedDust::initParticles() {
@@ -57,8 +57,8 @@ void RedDust::init(int w, int h, const std::string &path) {
   resourcePath = path;
   aspectRatio = (float)w / (float)h;
 
-  std::string vsPath = resourcePath + "red_dust.vs";
-  std::string fsPath = resourcePath + "red_dust.fs";
+  std::string vsPath = resourcePath + "reddust.vs";
+  std::string fsPath = resourcePath + "reddust.fs";
   shader = new Shader(vsPath.c_str(), fsPath.c_str());
 
   glEnable(GL_BLEND);
