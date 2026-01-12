@@ -34,6 +34,9 @@ windfield: $(BINDIR) src/windfield/windfield.cpp src/windfield/main.cpp
 reddust: $(BINDIR) src/reddust/reddust.cpp src/reddust/main.cpp
 	clang++ -o $(BINDIR)/reddust src/reddust/main.cpp src/reddust/reddust.cpp src/glad.cpp $(CXXFLAGS)
 
+reactiondiffusion: $(BINDIR) src/reactiondiffusion/reactiondiffusion.cpp src/reactiondiffusion/main.cpp
+	clang++ -o $(BINDIR)/reactiondiffusion src/reactiondiffusion/main.cpp src/reactiondiffusion/reactiondiffusion.cpp src/glad.cpp $(CXXFLAGS)
+
 plasma.saver:
 	./scripts/build-saver.sh plasma PlasmaSaverView
 
