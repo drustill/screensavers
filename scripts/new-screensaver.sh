@@ -29,13 +29,13 @@ write_h () {
 #ifndef ${uppername}_H
 #define ${uppername}_H
 
-#include "../../include/screensaver.h"
-#include "../../include/shader.h"
+#include "screensaver.h"
+#include "shader.h"
 
 class $classname : public Screensaver {
 public:
-  void init(int width, int height, const std::string &resourcePath) override;
-  void resize(int width, int height) override;
+  void init(int w, int h, const std::string &resourcePath) override;
+  void resize(int w, int h) override;
   void update(float deltaTime, float totalTime) override;
   void render() override;
   void cleanup() override;
